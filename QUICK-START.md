@@ -24,8 +24,8 @@ npm run build
 ```bash
 npm run dev
 ```
-- Frontend: http://localhost:3000
-- Backend: http://localhost:3001
+- Frontend: http://localhost:5000
+- Backend: http://localhost:5001
 
 ### Production Mode (Always Running)
 
@@ -65,8 +65,8 @@ npm run pm2:monit     # Monitor resources
 ```
 
 ### Application URLs
-- **Dashboard**: http://localhost:3000
-- **API Health**: http://localhost:3001/api/health
+- **Dashboard**: http://localhost:5000
+- **API Health**: http://localhost:5001/api/health
 
 ## Features
 

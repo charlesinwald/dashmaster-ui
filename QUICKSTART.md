@@ -59,7 +59,7 @@ WEATHER_UNITS=imperial
 yarn dev
 ```
 
-Open your browser to **http://localhost:3000**
+Open your browser to **http://localhost:5000**
 
 That's it! Your dashboard should now be running.
 
@@ -84,7 +84,7 @@ That's it! Your dashboard should now be running.
 For the best experience:
 1. Enable Developer Mode (optional, for SSH key setup)
 2. Connect to the same WiFi as your desktop
-3. Bookmark http://localhost:3000
+3. Bookmark http://localhost:5000
 4. For full-screen: Press F11 or use Chrome's full-screen mode
 
 ## Troubleshooting

@@ -117,7 +117,7 @@ The application is configured in `ecosystem.config.js`:
 {
   apps: [
     {
-      name: 'dashmaster-next',      // Next.js frontend (port 3000)
+      name: 'dashmaster-next',      // Next.js frontend (port 5000)
       script: 'node_modules/.bin/next',
       args: 'start',
       instances: 1,
@@ -125,7 +125,7 @@ The application is configured in `ecosystem.config.js`:
       max_memory_restart: '500M',   // Restart if exceeds 500MB
     },
     {
-      name: 'dashmaster-server',    // Express backend (port 3001)
+      name: 'dashmaster-server',    // Express backend (port 5001)
       script: 'ts-node',
       args: '--project tsconfig.server.json server/index.ts',
       instances: 1,
@@ -234,7 +234,7 @@ You can adjust these limits in `ecosystem.config.js`.
 
 ### Port Already in Use
 
-If ports 3000 or 3001 are already in use:
+If ports 5000 or 5001 are already in use:
 
 1. Stop the PM2 processes:
    ```bash
@@ -243,8 +243,8 @@ If ports 3000 or 3001 are already in use:
 
 2. Find and kill the process using the port:
    ```bash
-   lsof -ti:3000 | xargs kill -9
-   lsof -ti:3001 | xargs kill -9
+   lsof -ti:5000 | xargs kill -9
+   lsof -ti:5001 | xargs kill -9
    ```
 
 3. Restart PM2:
@@ -258,7 +258,7 @@ Ensure you have a `.env` file in the project root with:
 
 ```env
 # Backend URL for frontend
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:5001
 
 # SSH Configuration (if using desktop connection)
 DESKTOP_SSH_HOST=192.168.1.100

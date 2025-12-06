@@ -36,7 +36,7 @@ This guide will help you set up Google Calendar integration for your DashMaster 
    - Application type: Web application
    - Name: DashMaster Web Client
    - Authorized redirect URIs: Add the following (based on your setup):
-     - `http://localhost:3001/api/calendar/oauth2callback` (for local development)
+     - `http://localhost:5001/api/calendar/oauth2callback` (for local development)
      - `http://192.168.1.164:3001/api/calendar/oauth2callback` (for your network IP)
      - Add any other URLs you'll use to access the dashboard
 5. Click "Create"

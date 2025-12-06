@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const EXPRESS_API_URL = 'http://localhost:3001';
+const EXPRESS_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 export async function proxyRequest(
   request: NextRequest,

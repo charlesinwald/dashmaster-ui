@@ -122,7 +122,7 @@ npm run pm2:restart
 - [ ] Build application (`npm run build`)
 - [ ] Restart PM2 (`npm run pm2:restart`)
 - [ ] Check status (`npm run pm2:status`)
-- [ ] Verify in browser (`http://localhost:3000`)
+- [ ] Verify in browser (`http://localhost:5000`)
 - [ ] Check logs if issues (`npm run pm2:logs`)
 
 ---
@@ -258,7 +258,7 @@ npm run dev
 1. **Always build before restart**: `npm run build` before `npm run pm2:restart`
 2. **Check status after update**: `npm run pm2:status`
 3. **Monitor logs briefly**: `npm run pm2:logs` (Ctrl+C to exit)
-4. **Test in browser**: Open `http://localhost:3000`
+4. **Test in browser**: Open `http://localhost:5000`
 5. **Keep backup**: Consider `git tag v1.0` before major changes
 
 ---
@@ -297,7 +297,7 @@ echo ""
 npm run pm2:status
 
 echo ""
-echo "🌐 Dashboard: http://localhost:3000"
+echo "🌐 Dashboard: http://localhost:5000"
 ```
 
 Make it executable:

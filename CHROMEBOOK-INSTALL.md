@@ -48,7 +48,7 @@ cd ~/dashboard
 
 This will:
 - Start the SSH tunnel automatically
-- Open Chrome to http://localhost:3000
+- Open Chrome to http://localhost:5000
 - Dashboard is ready to use with camera support!
 
 ### To Stop the Dashboard:
@@ -102,6 +102,6 @@ Run the setup script again:
 
 ### To check if tunnel is running:
 ```bash
-pgrep -f "ssh.*3000:localhost:3000"
+pgrep -f "ssh.*3000:localhost:5000"
 ```
 If you see a number, the tunnel is running.

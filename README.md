@@ -70,8 +70,8 @@ Run both Next.js and Express servers concurrently:
 yarn dev
 ```
 
-- Next.js frontend: http://localhost:3000
-- Express API server: http://localhost:3001
+- Next.js frontend: http://localhost:5000
+- Express API server: http://localhost:5001
 
 ### Production Mode
 
@@ -189,7 +189,7 @@ The App Launcher widget comes with default apps. To customize:
 
 ### Data Not Persisting
 - Check `data/` directory exists and is writable
-- Verify API server is running on port 3001
+- Verify API server is running on port 5001
 - Check browser console for API errors
 
 ## Security Notes

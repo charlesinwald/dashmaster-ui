@@ -11,7 +11,7 @@ module.exports = {
       max_memory_restart: '500M',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 5000,
       },
       error_file: './logs/next-error.log',
       out_file: './logs/next-out.log',
@@ -32,7 +32,7 @@ module.exports = {
       max_memory_restart: '300M',
       env: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 5001,
       },
       error_file: './logs/server-error.log',
       out_file: './logs/server-out.log',
