@@ -165,6 +165,135 @@ class SSHService {
       throw new Error('Failed to get system info: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   }
+
+  async listPhotos(photoFolder: string): Promise<string[]> {
+    try {
+      // Use find command to list image files in the directory
+      const imageExtensions = '\\( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.gif" -o -name "*.webp" -o -name "*.bmp" \\)';
+      const command = `find "${photoFolder}" -maxdepth 1 -type f ${imageExtensions} -printf "%f\\n" 2>/dev/null || echo ""`;
+
+      const output = await this.executeCommand(command);
+
+      if (!output || output.trim() === '') {
+        return [];
+      }
+
+      return output
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+    } catch (error) {
+      throw new Error('Failed to list photos: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  }
+
+  async getPhotoFile(photoFolder: string, filename: string): Promise<Buffer> {
+    // If localhost, read file directly
+    if (this.isLocalhost()) {
+      const fs = await import('fs');
+      const path = await import('path');
+      const filePath = path.join(photoFolder, filename);
+
+      // Security: Prevent directory traversal
+      const resolvedPath = path.resolve(filePath);
+      const resolvedFolder = path.resolve(photoFolder);
+
+      if (!resolvedPath.startsWith(resolvedFolder)) {
+        throw new Error('Access denied - directory traversal detected');
+      }
+
+      return fs.readFileSync(filePath);
+    }
+
+    // For remote desktop, use SSH with SFTP
+    return new Promise((resolve, reject) => {
+      const conn = new Client();
+      let connectionTimeout: NodeJS.Timeout | null = null;
+      let isResolved = false;
+
+      const cleanup = () => {
+        if (connectionTimeout) clearTimeout(connectionTimeout);
+        conn.end();
+      };
+
+      const safeReject = (error: Error) => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          reject(error);
+        }
+      };
+
+      const safeResolve = (result: Buffer) => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          resolve(result);
+        }
+      };
+
+      connectionTimeout = setTimeout(() => {
+        safeReject(new Error('SSH connection timed out - desktop may be offline'));
+      }, SSH_TIMEOUT);
+
+      conn.on('ready', () => {
+        if (connectionTimeout) clearTimeout(connectionTimeout);
+
+        conn.sftp((err, sftp) => {
+          if (err) {
+            safeReject(new Error(`SFTP session failed: ${err.message}`));
+            return;
+          }
+
+          const path = require('path');
+          const remotePath = path.posix.join(photoFolder, filename);
+
+          // Security: Basic path validation
+          if (filename.includes('..') || filename.includes('/')) {
+            safeReject(new Error('Invalid filename - directory traversal detected'));
+            return;
+          }
+
+          const chunks: Buffer[] = [];
+          const readStream = sftp.createReadStream(remotePath);
+
+          readStream.on('data', (chunk: Buffer) => {
+            chunks.push(chunk);
+          });
+
+          readStream.on('end', () => {
+            safeResolve(Buffer.concat(chunks));
+          });
+
+          readStream.on('error', (error: Error) => {
+            safeReject(new Error(`Failed to read file: ${error.message}`));
+          });
+        });
+      }).on('error', (err) => {
+        const errorMessage = err.message.toLowerCase();
+        if (errorMessage.includes('econnrefused')) {
+          safeReject(new Error('Desktop connection refused - desktop may be offline'));
+        } else if (errorMessage.includes('etimedout') || errorMessage.includes('timeout')) {
+          safeReject(new Error('Desktop connection timed out - desktop may be unreachable'));
+        } else {
+          safeReject(new Error(`SSH connection error: ${err.message}`));
+        }
+      }).connect({
+        ...this.config as ConnectConfig,
+        readyTimeout: SSH_TIMEOUT,
+      });
+    });
+  }
+
+  async checkPhotoFolderExists(photoFolder: string): Promise<boolean> {
+    try {
+      const command = `test -d "${photoFolder}" && echo "exists" || echo "not found"`;
+      const output = await this.executeCommand(command);
+      return output.trim() === 'exists';
+    } catch (error) {
+      return false;
+    }
+  }
 }
 
 export default new SSHService();

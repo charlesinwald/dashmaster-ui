@@ -45,6 +45,9 @@ yarn-error.log*
 /logs
 .pm2
 
+# photo cache
+/.cache
+
 # vercel
 .vercel
 
