@@ -6,7 +6,7 @@
 echo "Stopping dashboard tunnel..."
 
 # Find and kill SSH tunnel process
-pkill -f "ssh.*3000:localhost:3000"
+pkill -f "ssh.*5000:localhost:5000"
 
 if [ $? -eq 0 ]; then
     echo "✓ Dashboard tunnel stopped!"

@@ -33,7 +33,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "Next steps:"
     echo "1. Run: ./start-dashboard.sh"
-    echo "2. Open Chrome and go to: http://localhost:3000"
+    echo "2. Open Chrome and go to: http://localhost:5000"
     echo ""
 else
     echo ""

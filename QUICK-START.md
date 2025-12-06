@@ -94,7 +94,7 @@ npm run pm2:restart
 ### Port Already in Use
 ```bash
 # Kill processes on ports
-lsof -ti:3000 | xargs kill -9
+lsof -ti:5000 | xargs kill -9
 lsof -ti:3001 | xargs kill -9
 
 # Restart

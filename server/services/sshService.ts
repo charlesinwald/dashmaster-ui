@@ -14,7 +14,7 @@ interface SSHConfig {
 }
 
 const SSH_TIMEOUT = 10000; // 10 seconds
-const COMMAND_TIMEOUT = 30000; // 30 seconds
+const COMMAND_TIMEOUT = 50000; // 30 seconds
 
 class SSHService {
   private get config(): SSHConfig {

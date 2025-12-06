@@ -6,15 +6,15 @@
 echo "Starting dashboard tunnel..."
 
 # Check if tunnel is already running
-if pgrep -f "ssh.*3000:localhost:3000" > /dev/null; then
+if pgrep -f "ssh.*5000:localhost:5000" > /dev/null; then
     echo "Dashboard tunnel is already running!"
     echo "Opening dashboard in Chrome..."
-    xdg-open http://localhost:3000 2>/dev/null || google-chrome http://localhost:3000 2>/dev/null
+    xdg-open http://localhost:5000 2>/dev/null || google-chrome http://localhost:5000 2>/dev/null
     exit 0
 fi
 
 # Start SSH tunnel in background
-ssh -f -N -L 3000:localhost:3000 charles@192.168.1.164
+ssh -f -N -L 5000:localhost:5000 charles@192.168.1.164
 
 if [ $? -eq 0 ]; then
     echo "✓ Dashboard tunnel started!"
@@ -24,10 +24,10 @@ if [ $? -eq 0 ]; then
     sleep 1
 
     # Open Chrome
-    xdg-open http://localhost:3000 2>/dev/null || google-chrome http://localhost:3000 2>/dev/null
+    xdg-open http://localhost:5000 2>/dev/null || google-chrome http://localhost:5000 2>/dev/null
 
     echo ""
-    echo "Dashboard is now running at: http://localhost:3000"
+    echo "Dashboard is now running at: http://localhost:5000"
     echo ""
     echo "To stop the tunnel, run: ./stop-dashboard.sh"
 else

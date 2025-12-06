@@ -13,7 +13,7 @@ export default function ConnectionStatus() {
       setIsVisible(true);
     } else if (status === 'connected') {
       // Hide after a brief delay when reconnected
-      const timer = setTimeout(() => setIsVisible(false), 3000);
+      const timer = setTimeout(() => setIsVisible(false), 5000);
       return () => clearTimeout(timer);
     }
   }, [status]);

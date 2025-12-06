@@ -150,7 +150,7 @@ npm run build
 npm run pm2:delete
 
 # Kill any lingering processes
-lsof -ti:3000 | xargs kill -9
+lsof -ti:5000 | xargs kill -9
 lsof -ti:3001 | xargs kill -9
 
 # Start fresh

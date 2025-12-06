@@ -102,6 +102,6 @@ Run the setup script again:
 
 ### To check if tunnel is running:
 ```bash
-pgrep -f "ssh.*3000:localhost:5000"
+pgrep -f "ssh.*5000:localhost:5000"
 ```
 If you see a number, the tunnel is running.

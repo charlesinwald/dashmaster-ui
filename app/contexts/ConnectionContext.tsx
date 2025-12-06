@@ -76,7 +76,7 @@ export function ConnectionProvider({ children }: { children: React.ReactNode }) 
 
     const backoffDelay = Math.min(
       RETRY_BACKOFF_BASE * Math.pow(2, retryCount),
-      30000 // Max 30 seconds
+      50000 // Max 30 seconds
     );
 
     await new Promise(resolve => setTimeout(resolve, backoffDelay));
