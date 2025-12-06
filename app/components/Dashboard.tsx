@@ -10,7 +10,10 @@ import SystemMonitorWidget from "./widgets/SystemMonitorWidget"
 import AppLauncherWidget from "./widgets/AppLauncherWidget"
 import NotesWidget from "./widgets/NotesWidget"
 import CalendarWidget from "./widgets/CalendarWidget"
+import PictureFrameWidget from "./widgets/PictureFrameWidget"
 import SettingsPanel from "./SettingsPanel"
+import MotionDetector from "./MotionDetector"
+import { useWakeLock } from "../hooks/useWakeLock"
 
 const GridLayout = dynamic(() => import("./grid-layout"), {
   ssr: false,
@@ -28,7 +31,8 @@ export const defaultLayouts = {
     { i: "system", x: 8, y: 0, w: 4, h: 2, minW: 3, minH: 2 },
     { i: "apps", x: 0, y: 2, w: 6, h: 3, minW: 4, minH: 3 },
     { i: "calendar", x: 6, y: 2, w: 6, h: 3, minW: 4, minH: 3 },
-    { i: "notes", x: 0, y: 5, w: 12, h: 3, minW: 4, minH: 2 },
+    { i: "photos", x: 0, y: 5, w: 6, h: 4, minW: 4, minH: 3 },
+    { i: "notes", x: 6, y: 5, w: 6, h: 4, minW: 4, minH: 2 },
   ],
 }
 
@@ -38,6 +42,7 @@ const defaultWidgets: WidgetConfig[] = [
   { id: "system", name: "System Monitor", enabled: true },
   { id: "apps", name: "App Launcher", enabled: true },
   { id: "calendar", name: "Calendar", enabled: true },
+  { id: "photos", name: "Picture Frame", enabled: true },
   { id: "notes", name: "Notes", enabled: true },
 ]
 
@@ -45,6 +50,11 @@ export default function Dashboard() {
   const [layouts, setLayouts] = useState(defaultLayouts)
   const [widgets, setWidgets] = useState<WidgetConfig[]>(defaultWidgets)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [motionDetectionEnabled, setMotionDetectionEnabled] = useState(false)
+  const [lastMotionTime, setLastMotionTime] = useState(Date.now())
+
+  // Wake lock will be active when motion detection is enabled
+  const { isActive: wakeLockActive, refresh: refreshWakeLock } = useWakeLock(motionDetectionEnabled)
 
   useEffect(() => {
     // Load layout
@@ -96,6 +106,12 @@ export default function Dashboard() {
     return widget ? widget.enabled : true
   }
 
+  const handleMotionDetected = () => {
+    setLastMotionTime(Date.now())
+    // Refresh wake lock on motion
+    refreshWakeLock()
+  }
+
   return (
     <div className="min-h-screen bg-background p-6 md:p-8">
       {/* Settings Button */}
@@ -121,6 +137,15 @@ export default function Dashboard() {
         onClose={() => setSettingsOpen(false)}
         widgets={widgets}
         onToggleWidget={handleToggleWidget}
+        motionDetectionEnabled={motionDetectionEnabled}
+        onToggleMotionDetection={setMotionDetectionEnabled}
+      />
+
+      {/* Motion Detector */}
+      <MotionDetector
+        enabled={motionDetectionEnabled}
+        sensitivity={20}
+        onMotionDetected={handleMotionDetected}
       />
 
       <GridLayout layouts={layouts} onLayoutChange={handleLayoutChange}>
@@ -147,6 +172,11 @@ export default function Dashboard() {
         {isWidgetEnabled("calendar") && (
           <div key="calendar" className="widget-container">
             <CalendarWidget />
+          </div>
+        )}
+        {isWidgetEnabled("photos") && (
+          <div key="photos" className="widget-container">
+            <PictureFrameWidget />
           </div>
         )}
         {isWidgetEnabled("notes") && (

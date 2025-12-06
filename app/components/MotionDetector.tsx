@@ -24,9 +24,8 @@ export default function MotionDetector({
   const previousFrameRef = useRef<ImageData | null>(null)
 
   useEffect(() => {
-    if (enabled) {
-      startCamera()
-    } else {
+    // Only stop camera when disabled, don't auto-start
+    if (!enabled) {
       stopCamera()
     }
 
@@ -37,6 +36,30 @@ export default function MotionDetector({
 
   const startCamera = async () => {
     try {
+      console.log('=== Camera Debug Info ===')
+      console.log('Protocol:', window.location.protocol)
+      console.log('Hostname:', window.location.hostname)
+      console.log('navigator.mediaDevices exists:', !!navigator.mediaDevices)
+      console.log('getUserMedia exists:', !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia))
+
+      // Check if we're on HTTPS or localhost
+      const isSecureContext = window.isSecureContext
+      const protocol = window.location.protocol
+      const hostname = window.location.hostname
+
+      console.log('Is secure context:', isSecureContext)
+      console.log('======================')
+
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (!isSecureContext && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+          throw new Error('Camera requires HTTPS connection. Use ngrok with HTTPS or access via localhost.')
+        }
+        throw new Error('Camera API not supported by this browser')
+      }
+
+      console.log('Requesting camera access...')
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 320 },
@@ -45,6 +68,7 @@ export default function MotionDetector({
         }
       })
 
+      console.log('Camera access granted')
       streamRef.current = stream
 
       if (videoRef.current) {
@@ -54,9 +78,21 @@ export default function MotionDetector({
         setError(null)
         startMotionDetection()
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Camera access error:', err)
-      setError('Unable to access camera')
+
+      let errorMessage = 'Unable to access camera'
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        errorMessage = 'Camera permission denied. Check browser settings.'
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        errorMessage = 'No camera found on this device'
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        errorMessage = 'Camera is already in use'
+      } else if (err.message) {
+        errorMessage = err.message
+      }
+
+      setError(errorMessage)
       setIsActive(false)
     }
   }
@@ -143,6 +179,11 @@ export default function MotionDetector({
     return Math.min(100, (totalDiff / pixels) * 2)
   }
 
+  // Don't render anything if motion detection is disabled
+  if (!enabled) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       <div className="bg-card border border-border rounded-lg shadow-lg p-3 min-w-[200px]">
@@ -161,7 +202,27 @@ export default function MotionDetector({
         </div>
 
         {error && (
-          <p className="text-xs text-destructive mb-2">{error}</p>
+          <div className="space-y-2">
+            <p className="text-xs text-destructive">{error}</p>
+            <button
+              onClick={startCamera}
+              className="w-full px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+            >
+              Grant Camera Access
+            </button>
+          </div>
+        )}
+
+        {!isActive && !error && enabled && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">Waiting for camera...</p>
+            <button
+              onClick={startCamera}
+              className="w-full px-3 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+            >
+              Start Camera
+            </button>
+          </div>
         )}
 
         {isActive && (

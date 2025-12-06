@@ -6,6 +6,7 @@ import weatherRoutes from './routes/weather';
 import systemRoutes from './routes/system';
 import dataRoutes from './routes/data';
 import calendarRoutes from './routes/calendar';
+import photosRoutes from './routes/photos';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use('/api/weather', weatherRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/photos', photosRoutes);
 
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {

@@ -13,6 +13,9 @@ interface SSHConfig {
   privateKey?: Buffer;
 }
 
+const SSH_TIMEOUT = 10000; // 10 seconds
+const COMMAND_TIMEOUT = 30000; // 30 seconds
+
 class SSHService {
   private get config(): SSHConfig {
     const privateKeyPath = process.env.DESKTOP_SSH_PRIVATE_KEY_PATH;
@@ -41,28 +44,67 @@ class SSHService {
     // If connecting to localhost, execute locally instead of via SSH
     if (this.isLocalhost()) {
       try {
-        const { stdout, stderr } = await execAsync(command);
+        const { stdout, stderr } = await execAsync(command, {
+          timeout: COMMAND_TIMEOUT,
+        });
         return stdout + stderr;
       } catch (error: any) {
+        if (error.killed && error.signal === 'SIGTERM') {
+          throw new Error('Command execution timed out');
+        }
         throw new Error(error.message || 'Command execution failed');
       }
     }
 
-    // Otherwise use SSH
+    // Otherwise use SSH with timeout handling
     return new Promise((resolve, reject) => {
       const conn = new Client();
       let output = '';
+      let connectionTimeout: NodeJS.Timeout | null = null;
+      let commandTimeout: NodeJS.Timeout | null = null;
+      let isResolved = false;
+
+      const cleanup = () => {
+        if (connectionTimeout) clearTimeout(connectionTimeout);
+        if (commandTimeout) clearTimeout(commandTimeout);
+        conn.end();
+      };
+
+      const safeReject = (error: Error) => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          reject(error);
+        }
+      };
+
+      const safeResolve = (result: string) => {
+        if (!isResolved) {
+          isResolved = true;
+          cleanup();
+          resolve(result);
+        }
+      };
+
+      connectionTimeout = setTimeout(() => {
+        safeReject(new Error('SSH connection timed out - desktop may be offline'));
+      }, SSH_TIMEOUT);
 
       conn.on('ready', () => {
+        if (connectionTimeout) clearTimeout(connectionTimeout);
+
+        commandTimeout = setTimeout(() => {
+          safeReject(new Error('Command execution timed out'));
+        }, COMMAND_TIMEOUT);
+
         conn.exec(command, (err, stream) => {
           if (err) {
-            conn.end();
-            return reject(err);
+            safeReject(new Error(`SSH command execution failed: ${err.message}`));
+            return;
           }
 
           stream.on('close', () => {
-            conn.end();
-            resolve(output);
+            safeResolve(output);
           }).on('data', (data: Buffer) => {
             output += data.toString();
           }).stderr.on('data', (data: Buffer) => {
@@ -70,8 +112,24 @@ class SSHService {
           });
         });
       }).on('error', (err) => {
-        reject(err);
-      }).connect(this.config as ConnectConfig);
+        const errorMessage = err.message.toLowerCase();
+        if (errorMessage.includes('econnrefused')) {
+          safeReject(new Error('Desktop connection refused - desktop may be offline'));
+        } else if (errorMessage.includes('etimedout') || errorMessage.includes('timeout')) {
+          safeReject(new Error('Desktop connection timed out - desktop may be unreachable'));
+        } else if (errorMessage.includes('enotfound') || errorMessage.includes('getaddrinfo')) {
+          safeReject(new Error('Desktop host not found - check network configuration'));
+        } else if (errorMessage.includes('authentication')) {
+          safeReject(new Error('SSH authentication failed - check credentials'));
+        } else {
+          safeReject(new Error(`SSH connection error: ${err.message}`));
+        }
+      }).on('timeout', () => {
+        safeReject(new Error('SSH connection timed out'));
+      }).connect({
+        ...this.config as ConnectConfig,
+        readyTimeout: SSH_TIMEOUT,
+      });
     });
   }
 

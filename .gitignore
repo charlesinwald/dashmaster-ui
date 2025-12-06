@@ -41,6 +41,10 @@ yarn-error.log*
 # data files
 /data/*.json
 
+# pm2 logs
+/logs
+.pm2
+
 # vercel
 .vercel
 

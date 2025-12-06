@@ -1,0 +1,24 @@
+[Unit]
+Description=DashMaster Dashboard Application
+After=network.target
+
+[Service]
+Type=forking
+User=charles
+WorkingDirectory=/home/charles/Code/dashmaster/dashmaster-ui
+Environment="PATH=/home/charles/.nvm/versions/node/v20.18.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="NODE_ENV=production"
+
+ExecStart=/home/charles/Code/dashmaster/dashmaster-ui/node_modules/.bin/pm2 start /home/charles/Code/dashmaster/dashmaster-ui/ecosystem.config.js
+ExecReload=/home/charles/Code/dashmaster/dashmaster-ui/node_modules/.bin/pm2 restart /home/charles/Code/dashmaster/dashmaster-ui/ecosystem.config.js
+ExecStop=/home/charles/Code/dashmaster/dashmaster-ui/node_modules/.bin/pm2 stop /home/charles/Code/dashmaster/dashmaster-ui/ecosystem.config.js
+
+Restart=on-failure
+RestartSec=10
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dashmaster
+
+[Install]
+WantedBy=multi-user.target
