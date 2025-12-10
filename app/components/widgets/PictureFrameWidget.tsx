@@ -104,7 +104,7 @@ export default function PictureFrameWidget() {
             <span className="text-sm font-medium text-white tracking-wide uppercase">Picture Frame</span>
           </div>
           {photos.length > 0 && (
-            <span className="text-xs text-white/80">
+            <span className="text-xs text-white/80 mr-4">
               {currentIndex + 1} / {photos.length}
             </span>
           )}
