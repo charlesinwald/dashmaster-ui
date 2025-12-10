@@ -90,7 +90,7 @@ export default function PictureFrameWidget() {
     <div className="h-full bg-card border border-border rounded-xl shadow-lg overflow-hidden relative group transition-all duration-300 hover:shadow-xl hover:border-secondary/50">
       <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      <div className="drag-handle cursor-move absolute top-4 right-4 opacity-30 hover:opacity-100 transition-opacity z-10">
+      <div className="drag-handle cursor-move absolute top-4 right-4 opacity-30 hover:opacity-100 transition-opacity z-100">
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
         </svg>
